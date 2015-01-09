@@ -6,7 +6,7 @@ from random import sample
 class RegressionDriver(object):
     """Class for Regression-based analysis of Driver traces"""
 
-    def __init__(self, driver, datadict):
+    def __init__(self, driver, datadict, numberofrows=50):
         """Initialize by providing a (positive) driver example and a dictionary of (negative) driver references."""
         self.driver = driver
         self.numfeatures = self.driver.num_features
@@ -27,7 +27,8 @@ class RegressionDriver(object):
             setkeys = sample(setkeys, len(setkeys) - 1)
         for key in setkeys:
             if key != driver.identifier:
-                data = np.append(data, np.asarray(datadict[key]), axis=0)
+                rand_smpl = [datadict[key][i] for i in sorted(sample(xrange(len(datadict[key])), numberofrows)) ]
+                data = np.append(data, np.asarray(rand_smpl), axis=0)
         self.__traindata = np.append(self.__traindata, data, axis=0)
         self.__trainlabels = np.append(self.__trainlabels, np.zeros((data.shape[0],)), axis=0)
         self.__y = np.ones((self.__testdata.shape[0],))
