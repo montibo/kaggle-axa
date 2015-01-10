@@ -54,7 +54,7 @@ def analysis(foldername, outdir, referencenum):
     for referencefolder in referencefolders:
         referencedrivers.append(Driver(referencefolder))
     generatedata(referencedrivers)
-    results = Parallel(n_jobs=20)(delayed(perform_analysis)(folder) for folder in folders)
+    results = Parallel(n_jobs=16)(delayed(perform_analysis)(folder) for folder in folders)
     with open(os.path.join(outdir, "pyRegression_{0}.csv".format(submission_id)), 'w') as writefile:
         writefile.write("driver_trip,prob\n")
         for item in results:
@@ -63,5 +63,5 @@ def analysis(foldername, outdir, referencenum):
 
 if __name__ == '__main__':
     MyPath = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-    analysis(os.path.join(MyPath, "..", "axa-telematics", "data", "drivers"), MyPath, 5)
+    analysis(os.path.join(MyPath, "..", "axa-telematics", "data", "drivers"), MyPath, 51)
     # analysis(os.path.join(MyPath, "..", "axa-telematics", "data", "drivers_small"), MyPath, 5)
