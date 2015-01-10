@@ -10,9 +10,9 @@ class RegressionDriver(object):
         """Initialize by providing a (positive) driver example and a dictionary of (negative) driver references."""
         seed(42)
         self.driver = driver
-        self.numfeatures = self.driver.num_features
+        self.numfeatures = self.drivers[0].num_features
         featurelist = []
-        self.__clf = GradientBoostingRegressor(n_estimators=300, max_depth=4, random_state=42)
+        self.__clf = GradientBoostingRegressor(n_estimators=300, max_depth=3, random_state=42, loss='lad')
         self.__indexlist = []
         for trace in self.driver.traces:
             self.__indexlist.append(trace.identifier)
@@ -21,7 +21,7 @@ class RegressionDriver(object):
         self.__traindata = np.asarray(featurelist)
         self.__testdata = np.asarray(featurelist)
         self.__trainlabels = np.ones((self.__traindata.shape[0],))
-        data = np.empty((0, driver.num_features), float)
+        data = np.empty((0, self.numfeatures), float)
         setkeys = datadict.keys()
         if driver.identifier in setkeys:
             setkeys.remove(driver.identifier)
