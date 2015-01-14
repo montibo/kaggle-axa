@@ -10,7 +10,6 @@ from MultiClassDriver import MultiClassDriver
 import os
 import sys
 from random import sample, seed
-from joblib import Parallel, delayed
 
 def perform_analysis(folders, referencedrivers):
     print folders
@@ -32,7 +31,7 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-def analysis(foldername, outdir, partitionssize, referencenum):
+def analysis(foldername, outdir, partitionssize, referencenum, maxsize=None):
     """
     Start the analysis
 
@@ -49,7 +48,12 @@ def analysis(foldername, outdir, partitionssize, referencenum):
     referencedrivers = []
     for referencefolder in referencefolders:
         referencedrivers.append(Driver(referencefolder))
-    results = Parallel(n_jobs=4)(delayed(perform_analysis)(folderlist, referencedrivers) for folderlist in chunks(folders, partitionssize))
+    #for testing
+    if maxsize:
+        folders = folders[:maxsize]
+    results = []
+    for folderlist in chunks(folders, partitionssize):
+        results.append(perform_analysis(folderlist, referencedrivers))
     with open(os.path.join(outdir, "pyMultiClass_{0}.csv".format(submission_id)), 'w') as writefile:
         writefile.write("driver_trip,prob\n")
         for item in results:
@@ -58,5 +62,4 @@ def analysis(foldername, outdir, partitionssize, referencenum):
 
 if __name__ == '__main__':
     MyPath = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-    analysis(os.path.join(MyPath, "..", "axa-telematics", "data", "drivers"), MyPath, 50, 11)
-    # analysis(os.path.join(MyPath, "..", "axa-telematics", "data", "drivers_small"), MyPath, 5, 3)
+    analysis(os.path.join(MyPath, "..", "axa-telematics", "data", "drivers"), MyPath, 20, 11, 20)

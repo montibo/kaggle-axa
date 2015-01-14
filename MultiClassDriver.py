@@ -15,7 +15,8 @@ class MultiClassDriver(object):
         # Initialize train and test np arrays
         self.__data = np.empty((0, self.numfeatures), float)
         self.__labels = np.empty((0,), float)
-        for driver in drivers:
+        for k in range(len(drivers)):
+            driver = drivers[k]
             featurelist = []
             self.__drivers[driver.identifier] = []
             for trace in driver.traces:
@@ -23,7 +24,7 @@ class MultiClassDriver(object):
                 featurelist.append(trace.features)
             newdata = np.asarray(featurelist)
             self.__data = np.append(self.__data, newdata, axis=0)
-            self.__labels = np.append(self.__labels, driver.identifier * np.ones((newdata.shape[0],)), axis=0)
+            self.__labels = np.append(self.__labels, k * np.ones((newdata.shape[0],)), axis=0)
         self.__addeddata = np.empty((0, self.numfeatures), float)
         self.__addedlabels = np.empty((0,), float)
         for driver in otherdrivers:
@@ -33,9 +34,9 @@ class MultiClassDriver(object):
                     featurelist.append(trace.features)
                 newdata = np.asarray(featurelist)
                 self.__addeddata = np.append(self.__addeddata, newdata, axis=0)
-                self.__addedlabels = np.append(self.__addedlabels, driver.identifier * np.ones((newdata.shape[0],)), axis=0)
+                self.__addedlabels = np.append(self.__addedlabels, -1 * np.ones((newdata.shape[0],)), axis=0)
         gbr = GradientBoostingClassifier(n_estimators=300, max_depth=3, random_state=42)
-        self.__clf = OneVsRestClassifier(gbr)
+        self.__clf = OneVsRestClassifier(gbr, n_jobs=-1)
         self.__y = []
 
     def classify(self):
@@ -54,7 +55,7 @@ class MultiClassDriver(object):
             key = self.__drivers.keys()[k]
             for i in xrange(len(self.__drivers[key])):
                 returnstring += "%d_%d,%.3f\n" % (key, self.__drivers[key][i], self.__y[i,k])
-        return returnstring
+        return returnstring[:-2]
 
     def validate(self, datadict):
         pass
