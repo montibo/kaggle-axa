@@ -6,13 +6,13 @@ from random import sample, seed
 class RegressionDriver(object):
     """Class for Regression-based analysis of Driver traces"""
 
-    def __init__(self, driver, datadict, numberofrows=4):
+    def __init__(self, driver, datadict, numberofrows=10):
         """Initialize by providing a (positive) driver example and a dictionary of (negative) driver references."""
         seed(42)
         self.driver = driver
-        self.numfeatures = self.drivers[0].num_features
+        self.numfeatures = self.driver.num_features
         featurelist = []
-        self.__clf = GradientBoostingRegressor(n_estimators=300, max_depth=3, random_state=42, loss='lad')
+        self.__clf = GradientBoostingRegressor(n_estimators=500, max_depth=4, random_state=42)
         self.__indexlist = []
         for trace in self.driver.traces:
             self.__indexlist.append(trace.identifier)
@@ -44,15 +44,14 @@ class RegressionDriver(object):
         """Return string in Kaggle submission format"""
         returnstring = ""
         for i in xrange(len(self.__indexlist) - 1):
-            returnstring += "%d_%d,%.3f\n" % (self.driver.identifier, self.__indexlist[i], self.__y[i])
-        returnstring += "%d_%d,%.3f" % (self.driver.identifier, self.__indexlist[len(self.__indexlist)-1], self.__y[len(self.__indexlist)-1])
+            returnstring += "%d_%d,%.5f\n" % (self.driver.identifier, self.__indexlist[i], self.__y[i])
+        returnstring += "%d_%d,%.5f" % (self.driver.identifier, self.__indexlist[len(self.__indexlist)-1], self.__y[len(self.__indexlist)-1])
         return returnstring
 
     def validate(self, datadict):
         from sklearn.metrics import roc_auc_score
         testdata = np.empty((0, self.numfeatures), float)
         y_true = np.empty((0,), float)
-        setkeys = [datadict.keys()[i] for i in sorted(sample(xrange(len(datadict.keys())), 3))]
         for key in datadict.keys():
             currenttestdata = np.asarray(datadict[key])
             testdata = np.append(testdata, currenttestdata, axis=0)
