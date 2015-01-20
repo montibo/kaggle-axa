@@ -1,18 +1,25 @@
 import numpy as np
 from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.preprocessing import PolynomialFeatures, MinMaxScaler
+from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
 from random import sample, seed
 
 
 class RegressionDriver(object):
     """Class for Regression-based analysis of Driver traces"""
 
-    def __init__(self, driver, datadict, numberofrows=10):
+    def __init__(self, driver, datadict, numberofrows=100, numfeatures = 200):
         """Initialize by providing a (positive) driver example and a dictionary of (negative) driver references."""
         seed(42)
         self.driver = driver
         self.numfeatures = self.driver.num_features
         featurelist = []
-        self.__clf = GradientBoostingRegressor(n_estimators=500, max_depth=4, random_state=42)
+        # self.__clf = GradientBoostingRegressor(n_estimators=500, max_depth=4)
+        gbr = GradientBoostingRegressor(n_estimators=500, max_depth=10, max_features=numfeatures, random_state=42)
+        pca = PCA(whiten=True, n_components=numfeatures)
+        estimators = [('polyf', PolynomialFeatures()), ('scale', MinMaxScaler()), ('pca', PCA()), ('gbr', gbr)]
+        self.__clf = Pipeline(estimators)
         self.__indexlist = []
         for trace in self.driver.traces:
             self.__indexlist.append(trace.identifier)
@@ -39,13 +46,16 @@ class RegressionDriver(object):
         """Perform classification"""
         self.__clf.fit(self.__traindata, self.__trainlabels)
         self.__y = self.__clf.predict(self.__testdata)
+        feature_importance = self.__clf.steps[-1][1].feature_importances_
+        # feature_importance = 100.0 * (feature_importance / feature_importance.max())
+        # print feature_importance
 
     def toKaggle(self):
         """Return string in Kaggle submission format"""
         returnstring = ""
         for i in xrange(len(self.__indexlist) - 1):
-            returnstring += "%d_%d,%.5f\n" % (self.driver.identifier, self.__indexlist[i], self.__y[i])
-        returnstring += "%d_%d,%.5f" % (self.driver.identifier, self.__indexlist[len(self.__indexlist)-1], self.__y[len(self.__indexlist)-1])
+            returnstring += "%d_%d,%.6f\n" % (self.driver.identifier, self.__indexlist[i], self.__y[i])
+        returnstring += "%d_%d,%.6f" % (self.driver.identifier, self.__indexlist[len(self.__indexlist)-1], self.__y[len(self.__indexlist)-1])
         return returnstring
 
     def validate(self, datadict):
