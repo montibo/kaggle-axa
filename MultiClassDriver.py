@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
 from random import sample, seed
-from sklearn.multiclass import OneVsRestClassifier
 from collections import OrderedDict
 
 class MultiClassDriver(object):
@@ -35,8 +34,7 @@ class MultiClassDriver(object):
                 newdata = np.asarray(featurelist)
                 self.__addeddata = np.append(self.__addeddata, newdata, axis=0)
                 self.__addedlabels = np.append(self.__addedlabels, -1 * np.ones((newdata.shape[0],)), axis=0)
-        gbr = GradientBoostingClassifier(n_estimators=300, max_depth=3, random_state=42)
-        self.__clf = OneVsRestClassifier(gbr, n_jobs=-1)
+        self.__clf = GradientBoostingClassifier(n_estimators=300, max_depth=4, random_state=42)
         self.__y = []
 
     def classify(self):

@@ -24,7 +24,7 @@ def perform_analysis(folders, referencedrivers):
 
 def chunks(l, n):
     """ Yield successive n-sized chunks from l.
-    
+
     http://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks-in-python
     """
     for i in xrange(0, len(l), n):
@@ -62,4 +62,5 @@ def analysis(foldername, outdir, partitionssize, referencenum, maxsize=None):
 
 if __name__ == '__main__':
     MyPath = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-    analysis(os.path.join(MyPath, "..", "axa-telematics", "data", "drivers"), MyPath, 20, 11, 20)
+    # analysis(os.path.join(MyPath, "..", "axa-telematics", "data", "drivers"), MyPath, 40, 11, 40)
+    analysis(os.path.join(MyPath, "..", "axa-telematics", "data", "drivers"), MyPath, 40, 11)
